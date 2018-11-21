@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uj.jian.dao.CommentMapper">
+  <resultMap id="BaseResultMap" type="com.uj.jian.bean.Comment">
+    <id column="commentId" jdbcType="INTEGER" property="commentid" />
+    <result column="commentBody" jdbcType="VARCHAR" property="commentbody" />
+    <result column="commentCreateTime" jdbcType="TIMESTAMP" property="commentcreatetime" />
+    <result column="articleId" jdbcType="INTEGER" property="articleid" />
+    <result column="userId" jdbcType="INTEGER" property="userid" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    commentId, commentBody, commentCreateTime, articleId, userId
+  </sql>
+  <select id="selectByExample" parameterType="com.uj.jian.bean.CommentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tbl_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_comment
+    where commentId = #{commentid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tbl_comment
+    where commentId = #{commentid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.uj.jian.bean.CommentExample">
+    delete from tbl_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.uj.jian.bean.Comment">
+    insert into tbl_comment (commentId, commentBody, commentCreateTime, 
+      articleId, userId)
+    values (#{commentid,jdbcType=INTEGER}, #{commentbody,jdbcType=VARCHAR}, #{commentcreatetime,jdbcType=TIMESTAMP}, 
+      #{articleid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uj.jian.bean.Comment">
+    insert into tbl_comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="commentid != null">
+        commentId,
+      </if>
+      <if test="commentbody != null">
+        commentBody,
+      </if>
+      <if test="commentcreatetime != null">
+        commentCreateTime,
+      </if>
+      <if test="articleid != null">
+        articleId,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="commentid != null">
+        #{commentid,jdbcType=INTEGER},
+      </if>
+      <if test="commentbody != null">
+        #{commentbody,jdbcType=VARCHAR},
+      </if>
+      <if test="commentcreatetime != null">
+        #{commentcreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleid != null">
+        #{articleid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.uj.jian.bean.CommentExample" resultType="java.lang.Long">
+    select count(*) from tbl_comment
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tbl_comment
+    <set>
+      <if test="record.commentid != null">
+        commentId = #{record.commentid,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentbody != null">
+        commentBody = #{record.commentbody,jdbcType=VARCHAR},
+      </if>
+      <if test="record.commentcreatetime != null">
+        commentCreateTime = #{record.commentcreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.articleid != null">
+        articleId = #{record.articleid,jdbcType=INTEGER},
+      </if>
+      <if test="record.userid != null">
+        userId = #{record.userid,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tbl_comment
+    set commentId = #{record.commentid,jdbcType=INTEGER},
+      commentBody = #{record.commentbody,jdbcType=VARCHAR},
+      commentCreateTime = #{record.commentcreatetime,jdbcType=TIMESTAMP},
+      articleId = #{record.articleid,jdbcType=INTEGER},
+      userId = #{record.userid,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uj.jian.bean.Comment">
+    update tbl_comment
+    <set>
+      <if test="commentbody != null">
+        commentBody = #{commentbody,jdbcType=VARCHAR},
+      </if>
+      <if test="commentcreatetime != null">
+        commentCreateTime = #{commentcreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articleid != null">
+        articleId = #{articleid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=INTEGER},
+      </if>
+    </set>
+    where commentId = #{commentid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.uj.jian.bean.Comment">
+    update tbl_comment
+    set commentBody = #{commentbody,jdbcType=VARCHAR},
+      commentCreateTime = #{commentcreatetime,jdbcType=TIMESTAMP},
+      articleId = #{articleid,jdbcType=INTEGER},
+      userId = #{userid,jdbcType=INTEGER}
+    where commentId = #{commentid,jdbcType=INTEGER}
+  </update>
+</mapper>

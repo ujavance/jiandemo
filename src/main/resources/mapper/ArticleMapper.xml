@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uj.jian.dao.ArticleMapper">
+  <resultMap id="BaseResultMap" type="com.uj.jian.bean.Article">
+    <id column="articleId" jdbcType="INTEGER" property="articleid" />
+    <result column="articleHead" jdbcType="VARCHAR" property="articlehead" />
+    <result column="articleTime" jdbcType="TIMESTAMP" property="articletime" />
+    <result column="articleReadNums" jdbcType="INTEGER" property="articlereadnums" />
+    <result column="likenum" jdbcType="INTEGER" property="likenum" />
+    <result column="userId" jdbcType="INTEGER" property="userid" />
+    <result column="tagId" jdbcType="INTEGER" property="tagid" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.uj.jian.bean.ArticleWithBLOBs">
+    <result column="articleWords" jdbcType="LONGVARCHAR" property="articlewords" />
+    <result column="articleBody" jdbcType="LONGVARCHAR" property="articlebody" />
+  </resultMap>
+  <!--文章信息，带有评论信息的-->
+  <resultMap extends="ResultMapWithBLOBs" id="ResultMapWithArticleWithUser" type="com.uj.jian.bean.ArticleWithBLOBsAndUser">
+    <association javaType="com.uj.jian.bean.User" property="user">
+      <id column="userId" property="userid" />
+      <result column="userName" property="username" />
+      <result column="userImg" property="userimg" />
+    </association>
+  </resultMap>
+
+  <!-- 文章评论 -->
+  <resultMap id="CommentOfArticleMap" type="com.uj.jian.bean.Comment">
+    <id column="commentId" property="commentid" />
+    <result column="commentBody" property="commentbody" />
+    <result column="commentCreateTime" property="commentcreatetime" />
+    <association javaType="com.uj.jian.bean.User" property="user">
+      <id column="userId" property="userid" />
+      <result column="userName" property="username" />
+      <result column="userImg" property="userimg" />
+    </association>
+  </resultMap>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    articleId, articleHead, articleTime, articleReadNums, userId, tagId,likenum
+  </sql>
+    <sql id="Blob_Column_List">
+    articleWords, articleBody
+  </sql>
+    <!--查询评论-->
+  <select id="selectCommentOfArticle" parameterType="int" resultMap="CommentOfArticleMap">
+    SELECT C.commentId, C.commentBody, C.commentCreateTime, A.userId, A.userName, A.userImg
+    from tbl_user A, tbl_comment C
+    WHERE A.userId = C.userId and C.articleId = #{id}
+   </select>
+
+    <!--是否已经点赞-->
+    <select id="countArticleLiked" resultType="java.lang.Long">
+    select count(*)
+    from `db_jianshu`.`tbl_reader`
+    where userId = #{arg0} and articleId = #{arg1};
+   </select>
+
+    <!--插入点赞记录-->
+    <insert id="saveArticleLiked">
+      INSERT INTO `db_jianshu`.`tbl_reader`(`userId`, `articleId`, `isLike`, `isColloect`) VALUES (#{arg0}, #{arg1}, #{arg2}, 0);
+    </insert>
+
+  <!--查询文章,带有作者信息-->
+  <select id="selectArticleWithUser" parameterType="int" resultMap="ResultMapWithArticleWithUser">
+	select `articleId`, `articleTime`, `articleBody`, `articleReadNums`,`likenum`,`tagId`, u.userId, u.userImg, `userName`
+	from tbl_article  a
+	left join tbl_user u
+	on u.userId = a.userId
+	where	a.userId = #{id};
+  </select>
+  <select id="selectByExampleWithBLOBsWithUser" parameterType="int" resultMap="ResultMapWithArticleWithUser">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    `articleId`, `articleTime`, `articleBody`, `articleReadNums`,`likenum`,`tagId`, u.userId, u.userImg, `userName`
+    from tbl_article  a
+    left join tbl_user u
+    on u.userId = a.userId
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectByExampleWithBLOBs" parameterType="com.uj.jian.bean.ArticleExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tbl_article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.uj.jian.bean.ArticleExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tbl_article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tbl_article
+    where articleId = #{articleid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tbl_article
+    where articleId = #{articleid,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.uj.jian.bean.ArticleExample">
+    delete from tbl_article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.uj.jian.bean.ArticleWithBLOBs">
+    insert into tbl_article (articleId, articleHead, articleTime, 
+      articleReadNums, userId, tagId, 
+      articleWords, articleBody)
+    values (#{articleid,jdbcType=INTEGER}, #{articlehead,jdbcType=VARCHAR}, #{articletime,jdbcType=TIMESTAMP}, 
+      #{articlereadnums,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{tagid,jdbcType=INTEGER}, 
+      #{articlewords,jdbcType=LONGVARCHAR}, #{articlebody,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.uj.jian.bean.ArticleWithBLOBs">
+    insert into tbl_article
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="articleid != null">
+        articleId,
+      </if>
+      <if test="articlehead != null">
+        articleHead,
+      </if>
+      <if test="articletime != null">
+        articleTime,
+      </if>
+      <if test="articlereadnums != null">
+        articleReadNums,
+      </if>
+      <if test="userid != null">
+        userId,
+      </if>
+      <if test="tagid != null">
+        tagId,
+      </if>
+      <if test="articlewords != null">
+        articleWords,
+      </if>
+      <if test="articlebody != null">
+        articleBody,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="articleid != null">
+        #{articleid,jdbcType=INTEGER},
+      </if>
+      <if test="articlehead != null">
+        #{articlehead,jdbcType=VARCHAR},
+      </if>
+      <if test="articletime != null">
+        #{articletime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articlereadnums != null">
+        #{articlereadnums,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="tagid != null">
+        #{tagid,jdbcType=INTEGER},
+      </if>
+      <if test="articlewords != null">
+        #{articlewords,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articlebody != null">
+        #{articlebody,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.uj.jian.bean.ArticleExample" resultType="java.lang.Long">
+    select count(*) from tbl_article
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tbl_article
+    <set>
+      <if test="record.articleid != null">
+        articleId = #{record.articleid,jdbcType=INTEGER},
+      </if>
+      <if test="record.articlehead != null">
+        articleHead = #{record.articlehead,jdbcType=VARCHAR},
+      </if>
+      <if test="record.articletime != null">
+        articleTime = #{record.articletime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.articlereadnums != null">
+        articleReadNums = #{record.articlereadnums,jdbcType=INTEGER},
+      </if>
+      <if test="record.userid != null">
+        userId = #{record.userid,jdbcType=INTEGER},
+      </if>
+      <if test="record.tagid != null">
+        tagId = #{record.tagid,jdbcType=INTEGER},
+      </if>
+      <if test="record.articlewords != null">
+        articleWords = #{record.articlewords,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.articlebody != null">
+        articleBody = #{record.articlebody,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update tbl_article
+    set articleId = #{record.articleid,jdbcType=INTEGER},
+      articleHead = #{record.articlehead,jdbcType=VARCHAR},
+      articleTime = #{record.articletime,jdbcType=TIMESTAMP},
+      articleReadNums = #{record.articlereadnums,jdbcType=INTEGER},
+      userId = #{record.userid,jdbcType=INTEGER},
+      tagId = #{record.tagid,jdbcType=INTEGER},
+      articleWords = #{record.articlewords,jdbcType=LONGVARCHAR},
+      articleBody = #{record.articlebody,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tbl_article
+    set articleId = #{record.articleid,jdbcType=INTEGER},
+      articleHead = #{record.articlehead,jdbcType=VARCHAR},
+      articleTime = #{record.articletime,jdbcType=TIMESTAMP},
+      articleReadNums = #{record.articlereadnums,jdbcType=INTEGER},
+      userId = #{record.userid,jdbcType=INTEGER},
+      tagId = #{record.tagid,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.uj.jian.bean.ArticleWithBLOBs">
+    update tbl_article
+    <set>
+      <if test="articlehead != null">
+        articleHead = #{articlehead,jdbcType=VARCHAR},
+      </if>
+      <if test="articletime != null">
+        articleTime = #{articletime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="articlereadnums != null">
+        articleReadNums = #{articlereadnums,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        userId = #{userid,jdbcType=INTEGER},
+      </if>
+    <if test="likenum != null">
+        likenum = #{likenum,jdbcType=INTEGER},
+    </if>
+      <if test="tagid != null">
+        tagId = #{tagid,jdbcType=INTEGER},
+      </if>
+      <if test="articlewords != null">
+        articleWords = #{articlewords,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="articlebody != null">
+        articleBody = #{articlebody,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where articleId = #{articleid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.uj.jian.bean.ArticleWithBLOBs">
+    update tbl_article
+    set articleHead = #{articlehead,jdbcType=VARCHAR},
+      articleTime = #{articletime,jdbcType=TIMESTAMP},
+      articleReadNums = #{articlereadnums,jdbcType=INTEGER},
+      userId = #{userid,jdbcType=INTEGER},
+      tagId = #{tagid,jdbcType=INTEGER},
+      articleWords = #{articlewords,jdbcType=LONGVARCHAR},
+      articleBody = #{articlebody,jdbcType=LONGVARCHAR}
+    where articleId = #{articleid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.uj.jian.bean.Article">
+    update tbl_article
+    set articleHead = #{articlehead,jdbcType=VARCHAR},
+      articleTime = #{articletime,jdbcType=TIMESTAMP},
+      articleReadNums = #{articlereadnums,jdbcType=INTEGER},
+      userId = #{userid,jdbcType=INTEGER},
+      tagId = #{tagid,jdbcType=INTEGER}
+    where articleId = #{articleid,jdbcType=INTEGER}
+  </update>
+</mapper>
