@@ -67,6 +67,22 @@
   <sql id="Base_Column_List">
     userId, followId, followTime
   </sql>
+  <select id="selectByFenNumRecommond"  resultMap="com.uj.jian.dao.UserMapper.BaseResultMap">
+    select A.userId , A.userName, A.userImg, A.articleNumber, A.likes, A.fans, A.follows
+    from tbl_user as A LEFT join
+    (
+    select *
+    from tbl_follow
+    GROUP BY followId
+    having count(*) > #{arg0}
+    ORDER BY count(*)
+    DESC limit 8
+    ) as C
+    on A.userId = C.followId
+		where A.userId not in (select B.followId from  tbl_follow B where B.userId = #{arg1})
+    limit 8;
+  </select>
+
   <select id="selectByExample" parameterType="com.uj.jian.bean.FollowerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">

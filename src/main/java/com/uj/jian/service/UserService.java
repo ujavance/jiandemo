@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -45,5 +47,10 @@ public class UserService {
 
     public boolean saveUser(User registerUser) {
         return userMapper.insert(registerUser) > 0;
+    }
+
+
+    public void showHome(Integer userid) {
+        userMapper.updateUserInfo(userid);
     }
 }

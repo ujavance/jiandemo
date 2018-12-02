@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import java.util.LinkedList;
 import java.util.List;
 
 @Controller
@@ -23,21 +22,13 @@ public class WriteContoller {
     @Autowired
     private WriteService writeService;
 
-    /*
-    * 每一次加载条数*/
+    /*每一次加载条数*/
     private static final int PAGEITEMS = 5;
-
-    /**
-     * @Description: 保存发表文章
-     * @Param: [img, articleDO] 上传图片 ，文章内容主体
-     * @return: java.lang.String 返回视图 jsp 名字
-     * @Author: Administrator
-     * @Date: 2018/11/18
-     */
+    /*保存发表文章*/
     @RequestMapping(value = "/article", method = RequestMethod.POST)
-    public String saveArticle(MultipartFile img, ArticleDO articleDO) throws Exception{
+    public String saveArticle(ArticleDO articleDO ,MultipartFile img) throws Exception{
         writeService.saveArticle(img, articleDO);
-        return "home";
+        return "/home";
     }
     /*获得评论*/
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
@@ -47,6 +38,9 @@ public class WriteContoller {
         SingletonLogger.logger.info("文章ID {} ， 评论合集 {}", id, commments);
         return Msg.success().add("comments", commments);
     }
+
+    /*============ 标签 ==================*/
+
     /*输入值 -> 匹配标签集*/
     @RequestMapping(value = "/tag", method = RequestMethod.POST)
     @ResponseBody
@@ -58,6 +52,23 @@ public class WriteContoller {
         List<SelectDO> selectDOS = writeService.formatTags(tags);
         return Msg.success().add("tags", selectDOS);
     }
+
+    /*创建标签*/
+    @RequestMapping(value = "/tag", method = RequestMethod.PUT)
+    @ResponseBody
+    public Msg createTags(String tagname) {
+        return tagService.create(tagname)?Msg.success().add("info", "创建成功"):Msg.fail().add("info", "创建失败!后台已经存在该标签");
+    }
+
+    @RequestMapping(value = "/person/info", method = RequestMethod.GET)
+    @ResponseBody
+    public Msg getInfo(Integer userid) {
+        return  Msg.success().add("info", "创建成功").add("articleNum", tagService.getArticleNum(userid)).add("tagNum", tagService.getTagOfUser(userid));
+    }
+
+
+
+    /*============ 首页 ==================*/
     /* 登录后 -> 用户首页文章信息*/
     @RequestMapping(value = "/read",method=RequestMethod.GET)
     @ResponseBody
@@ -70,5 +81,26 @@ public class WriteContoller {
     @ResponseBody
     public Msg getUserArticle(Integer userId, Integer pn, HttpSession httpSession) {
         return writeService.getArticleOfUser(((User)httpSession.getAttribute("user")).getUserid(), pn);
+    }
+    /*推荐用户*/
+    @RequestMapping(value = "/recommond",method = RequestMethod.GET)
+    @ResponseBody
+    public Msg getRecommendUserInfo(Integer userid) {
+        List<User> userInfo = writeService.getRecommondUserInfo(userid);
+        return Msg.success().add("recommondUserInfo", userInfo);
+    }
+    /*关注用户*/
+    @RequestMapping(value = "/observe", method = RequestMethod.PUT)
+    @ResponseBody
+    public Msg followerSb(Integer userId, Integer followId) {
+        SingletonLogger.logger.info("follower Sb {}, articleId is {} ", userId, followId);
+        return writeService.followsb(userId, followId)?Msg.success().add("info", "成功关注！"):Msg.fail().add("info", "已经关注了该用户");
+    }
+
+    /*========== 个人用户界面 ===============*/
+    @RequestMapping(value = "/person", method = RequestMethod.POST)
+    @ResponseBody
+    public Msg getPersonalArticle(Integer userId, Integer pn) {
+        return writeService.getPersonalArticle(userId, pn);
     }
 }

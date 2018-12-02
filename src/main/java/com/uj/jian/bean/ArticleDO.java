@@ -6,15 +6,6 @@ public class ArticleDO {
     private Integer userId;
     private String content;
 
-    public ArticleDO() {
-    }
-
-    public ArticleDO(Integer tagId, Integer userId, String content) {
-        this.tagId = tagId;
-        this.userId = userId;
-        content = content;
-    }
-
     @Override
     public String toString() {
         return "ArticleDO{" +

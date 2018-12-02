@@ -2,6 +2,7 @@ package com.uj.jian.controller;
 
 import com.uj.jian.bean.Comment;
 import com.uj.jian.bean.User;
+import com.uj.jian.dao.RedisService;
 import com.uj.jian.service.ArticleService;
 import com.uj.jian.utils.Msg;
 import com.uj.jian.utils.SingletonLogger;
@@ -18,7 +19,7 @@ import java.util.List;
 public class ArticleController {
 
     @Autowired
-    public ArticleService articleService;
+    private ArticleService articleService;
 
     /*保存评论*/
     @RequestMapping(value = "/comment", method = RequestMethod.PUT)
@@ -38,14 +39,4 @@ public class ArticleController {
         SingletonLogger.logger.info("addLikeNum userId is {}, articleId is {} ", userId, articleId);
         return articleService.addLikeNumber(userId, articleId)?Msg.success():Msg.fail().add("info", "已经点过赞了！");
     }
-
-    /*推荐用户*/
-    @RequestMapping(value = "/recommond", method = RequestMethod.GET)
-    @ResponseBody
-    public Msg getRecommendUserInfo(Integer userid) {
-        List<User> userInfo = articleService.getRecommondUserInfo(userid);
-        return Msg.success().add("recommondUserInfo", userInfo);
-    }
-
-
 }

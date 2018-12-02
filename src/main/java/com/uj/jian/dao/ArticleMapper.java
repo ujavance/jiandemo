@@ -10,7 +10,6 @@ public interface ArticleMapper {
     
     
     long countByExample(ArticleExample example);
-    
 
     int deleteByExample(ArticleExample example);
 
@@ -21,6 +20,7 @@ public interface ArticleMapper {
     int insertSelective(ArticleWithBLOBs record);
 
     List<ArticleWithBLOBs> selectByExampleWithBLOBs(ArticleExample example);
+
     List<ArticleWithBLOBsAndUser> selectByExampleWithBLOBsWithUser(ArticleExample example);
 
     /*查询待作者的文章信息*/

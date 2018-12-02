@@ -26,24 +26,23 @@ public class LoginHandlerIntercepter implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse arg1,
 			Object arg2) throws Exception {
-			return true;
-//	       String requestURI = request.getRequestURI();
-//	       if (requestURI.indexOf("user")>0){
-//			   SingletonLogger.logger.info("intercepter -- enter url 'user' direct ", requestURI );
-//	       		return true;
-//		   }else{
-//			   HttpSession session = request.getSession();
-//			   String userId = (String) session.getAttribute("userId");
-//			   SingletonLogger.logger.info("intercepter -- have userId in session, userId is ", userId==null?"not exsit":userId );
-//			   if(userId!=null){
-//				   //登陆成功的用户
-//				   return true;
-//			   }else{
-//				   //没有登陆，转向登陆界面
-//				   request.getRequestDispatcher("/index.jsp").forward(request,arg1);
-//				   return false;
-//			   }
-//		   }
+
+	       String requestURI = request.getRequestURI();
+	       if (requestURI.indexOf("user")>0){
+			   SingletonLogger.logger.info("intercepter -- enter url 'user' direct ", requestURI );
+	       		return true;
+		   }else{
+			   HttpSession session = request.getSession();
+			   String userId = (String) session.getAttribute("userId");
+			   SingletonLogger.logger.info("intercepter -- have userId in session, userId is ", userId==null?"not exsit":userId );
+			   if(userId!=null){
+				   //登陆成功的用户
+				   return true;
+			   }else{
+				   //没有登陆，转向登陆界面
+				   request.getRequestDispatcher("/index.jsp").forward(request,arg1);
+				   return false;
+			   }
+		   }
 	}
- 
 }

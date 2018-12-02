@@ -94,7 +94,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    articleId, articleHead, articleTime, articleReadNums, userId, tagId,likenum
+    articleId, articleHead, articleTime, articleReadNums, userId, tagId,likenum,articleBody
   </sql>
     <sql id="Blob_Column_List">
     articleWords, articleBody
@@ -124,14 +124,18 @@
 	from tbl_article  a
 	left join tbl_user u
 	on u.userId = a.userId
-	where	a.userId = #{id};
+	where	a.userId = #{id}
+	order by articleTime DESC
   </select>
+
+
+  <!--我的空间-->
   <select id="selectByExampleWithBLOBsWithUser" parameterType="int" resultMap="ResultMapWithArticleWithUser">
     select
     <if test="distinct">
       distinct
     </if>
-    `articleId`, `articleTime`, `articleBody`, `articleReadNums`,`likenum`,`tagId`, u.userId, u.userImg, `userName`
+    `articleId`, `articleTime`,`articleHead`,  `articleBody`, `articleReadNums`,`likenum`,`tagId`, u.userId, u.userImg, `userName`
     from tbl_article  a
     left join tbl_user u
     on u.userId = a.userId
@@ -142,6 +146,9 @@
       order by ${orderByClause}
     </if>
   </select>
+
+
+
 
   <select id="selectByExampleWithBLOBs" parameterType="com.uj.jian.bean.ArticleExample" resultMap="ResultMapWithBLOBs">
     select

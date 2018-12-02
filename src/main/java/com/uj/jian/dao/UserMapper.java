@@ -3,6 +3,8 @@ package com.uj.jian.dao;
 import com.uj.jian.bean.User;
 import com.uj.jian.bean.UserExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface UserMapper {
@@ -27,4 +29,6 @@ public interface UserMapper {
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
+
+    void updateUserInfo(Integer userid);
 }

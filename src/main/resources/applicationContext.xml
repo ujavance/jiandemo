@@ -9,19 +9,56 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
-	<context:component-scan base-package="com.uj.jian.service">
+	<context:component-scan base-package="com.uj.jian">
 		<context:exclude-filter type="annotation"
 			expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>
 
 	<!-- Spring的配置文件，这里主要配置和业务逻辑有关的 -->
 	<!--=================== 数据源，事务控制，xxx ================-->
-	<context:property-placeholder location="classpath:dbconfig.properties,classpath:other.properties" />
+	<context:property-placeholder location="classpath:dbconfig.properties,classpath:other.properties,classpath:spring-redis.properties" />
 	<bean id="pooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
 		<property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
 		<property name="driverClass" value="${jdbc.driverClass}"></property>
 		<property name="user" value="${jdbc.user}"></property>
 		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+
+
+	<!-- 配置JedisPoolConfig实例,JedisPoolConfig是连接池的配置 -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="minIdle" value="${redis.minIdle}"/>
+		<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+	</bean>
+
+	<!-- 配置JedisConnectionFactory，连接池工厂 -->
+	<bean id="jedisConnectionFactory"
+		  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<!-- 连接信息 -->
+		<property name="hostName" value="${redis.host}" />
+		<property name="port" value="${redis.port}" />
+		<!-- 数据库 -->
+		<property name="database" value="${redis.dbIndex}" />
+		<!-- 使用连接池 -->
+		<property name="usePool" value="true"/>
+		<property name="poolConfig" ref="poolConfig" />
+	</bean>
+
+	<!-- key序列化策略，class需要实现RedisSerializer接口 -->
+	<bean id="keySerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+	<!-- value序列化策略，class需要实现RedisSerializer接口 -->
+	<bean id="valueSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+
+	<!-- redis模板 -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory"/>
+		<property name="keySerializer" ref="keySerializer"/>
+		<property name="valueSerializer" ref="valueSerializer"/>
+		<!-- 配置是否支持事务 -->
+		<property name="enableTransactionSupport" value="true"/>
 	</bean>
 
 	<!--================== 配置和MyBatis的整合=============== -->
@@ -42,9 +79,13 @@
 	<!-- 配置一个可以执行批量的sqlSession -->
 	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
-		<constructor-arg name="executorType" value="BATCH"></constructor-arg>
+		<!--<constructor-arg name="executorType" value="BATCH"></constructor-arg>-->
 	</bean>
-	<!--=============================================  -->
+
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
 
 	<!-- ===============事务控制的配置 ================-->
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

@@ -72,6 +72,12 @@
   <sql id="Base_Column_List">
     userId, userName, password, userImg, articleNumber, likes, fans, follows
   </sql>
+
+  <!--存储过程 - 修改用户个人信息-->
+  <select id="updateUserInfo" parameterType="java.lang.Integer" statementType="CALLABLE" useCache="false">
+        {call insertLikeArticleNumber(#{userid,jdbcType=INTEGER,mode=IN})}
+  </select>
+
   <select id="selectByExample" parameterType="com.uj.jian.bean.UserExample" resultMap="BaseResultMap">
     select
     <if test="distinct">

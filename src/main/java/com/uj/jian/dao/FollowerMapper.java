@@ -4,6 +4,8 @@ import com.uj.jian.bean.Follower;
 import com.uj.jian.bean.FollowerExample;
 import com.uj.jian.bean.FollowerKey;
 import java.util.List;
+
+import com.uj.jian.bean.User;
 import org.apache.ibatis.annotations.Param;
 
 public interface FollowerMapper {
@@ -19,7 +21,12 @@ public interface FollowerMapper {
 
     List<Follower> selectByExample(FollowerExample example);
 
+
+    List<User> selectByFenNumRecommond(Integer num, Integer userid);
+
     Follower selectByPrimaryKey(FollowerKey key);
+
+
 
     int updateByExampleSelective(@Param("record") Follower record, @Param("example") FollowerExample example);
 

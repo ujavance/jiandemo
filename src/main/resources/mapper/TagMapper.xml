@@ -68,6 +68,18 @@
   <sql id="Base_Column_List">
     tagId, tagName, tagCreateTime, tagArticleNumbers
   </sql>
+
+  <!--用户发的标签数量-->
+  <select id="selectTagNumOfArticle" parameterType="java.lang.Integer" resultType="java.lang.Long" >
+    select count( DISTINCT tagId) from tbl_article where userId = #{userId}
+  </select>
+
+  <!--用户发文数量-->
+  <select id="selectUserArticleNumber" parameterType="java.lang.Integer" resultType="java.lang.Long" >
+      select count(*) from tbl_article where userId = #{userId};
+  </select>
+
+
   <select id="selectByExample" parameterType="com.uj.jian.bean.TagExample" resultMap="BaseResultMap">
     select
     <if test="distinct">

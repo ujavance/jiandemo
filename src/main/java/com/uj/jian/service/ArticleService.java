@@ -5,6 +5,7 @@ import com.uj.jian.bean.Comment;
 import com.uj.jian.bean.User;
 import com.uj.jian.dao.ArticleMapper;
 import com.uj.jian.dao.CommentMapper;
+import com.uj.jian.dao.RedisService;
 import com.uj.jian.utils.SingletonLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,13 +83,5 @@ public class ArticleService {
     private boolean checkArticleLiked(Integer userId, Integer articleId) {
 
         return articleMapper.countArticleLiked(userId, articleId) > 0;
-    }
-
-    public List<User> getRecommondUserInfo(Integer userid) {
-        /*
-        * redisDao.savaList("userId1", );
-        * TODO: 其他
-        * */
-        return null;
     }
 }

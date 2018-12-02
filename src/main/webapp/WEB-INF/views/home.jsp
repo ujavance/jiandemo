@@ -118,9 +118,8 @@
                         <div class="box-body">
                             <div class="row">
                                 <div class="col-md-12">
-
                                     <form action="${APP_PATH}/article" method="post" id="publishForm"
-                                          enctype="multipart/form-data">
+                                          enctype="multipart/form-data" omsubmit="return false;">
                                         <div class="form-group">
                                             <textarea class="form-control" name="content" rows="3"
                                                       placeholder="Enter ..."></textarea>
@@ -181,7 +180,7 @@
 
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">相似关注者</h3>
+                            <h3 class="box-title">推荐用户</h3>
                         </div>
                         <div class="box-footer no-padding">
                             <ul class="users-list clearfix" id="recommondUserInfo">
@@ -197,27 +196,29 @@
                                 </li>
                             </ul><!-- /.users-list -->
                         </div><!-- /.box-body -->
-                        <div class="box-footer text-center">
-                            <a href="" class="uppercase">View All Users</a>
-                        </div><!-- /.box-footer -->
                     </div>
+                    <%--个人信息--%>
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">创建标签</h3>
+                        </div><!-- /.box-header -->
+                        <!-- form start -->
+                        <form class="form-horizontal" id="tagForm">
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <%--<label for="tagNameId" class="col-sm-2 control-label">标签</label>--%>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control" id="tagNameId" placeholder="请输入标签名">
+                                    </div>
+                                </div>
+                            </div><!-- /.box-body -->
+                        </form>
+                        <div class="box-footer">
+                            <button type="button" id="submitTagName" class="btn btn-info pull-right">提交</button>
+                        </div><!-- /.box-footer -->
 
-                        <%--个人信息--%>
-                        <div class="box box-default">
-                            <div class="box-header with-border">
-                                <i class="fa fa-user-o"></i>
-                                <h3 class="box-title">个人信息</h3>
-                            </div>
-                            <div class="box-footer no-padding">
-                                <ul class="nav nav-stacked">
-                                    <li><a href="#">Projects <span class="pull-right badge bg-blue">31</span></a></li>
-                                    <li><a href="#">Tasks <span class="pull-right badge bg-aqua">5</span></a></li>
-                                    <li><a href="#">Completed Projects <span class="pull-right badge bg-green">12</span></a></li>
-                                    <li><a href="#">Followers <span class="pull-right badge bg-red">842</span></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <%--个人信息--%>
+                    </div>
+                     <%--个人信息--%>
                 </div><!-- /.col -->
             </div>
         </section><!-- /.content -->
@@ -236,6 +237,8 @@
         * */
         var currentUserId;
         var totalRecord,currentPage;
+
+
         /*
         * Dom 加载完毕
         * - 初始化当前用户 id
@@ -308,12 +311,9 @@
                     success:function (result) {
                         if (result.code === 100){
                             // 关注
-                            alert("关注成功!!!");
                             dom.prop("data-result", "ok");
-                        }else{
-                            // 未关注
-                            alert(result.extend.info);
                         }
+                        alert(result.extend.info);
                     }
                 });
             }
@@ -353,6 +353,7 @@
                 }
             });
         }
+
         /*解析文章集合数据*/
         function build_article(result) {
             /*存储文章集*/
@@ -376,6 +377,7 @@
                 var btnlike = $("<button class=\"btn btn-default btn-xs likeBtn\" ><i class=\"fa fa-thumbs-o-up\"></i> 喜欢</button>").prop("user-id", item.userid).prop("article-id", item.articleid);
                 var likenum = $("<span class=\"pull-right text-muted spanLikeNum\"></span>").append(item.likenum);
                 var pcontent = $("<p></p>").append(item.articlebody);
+                var pcontentImg = $("<img class=\"img-responsive pad\" src=\"\" alt=\"Photo\">").attr("src", "/mypic/" + item.articlehead);
                 /*评论内容*/
                 var commentsinfo = $("<div class=\"box-footer box-comments commenttoggle\" style=\"display: none;\"></div>");
                 /*评论输入框*/
@@ -388,7 +390,13 @@
                 commentRight.append(commentInput);
                 commentForm.append(commentUserImg).append(commentRight).appendTo(writeComment);
                 /*box中加入评论输入框，按钮，头部信息*/
-                body.append(pcontent).append(btnlike).append(btncollec).append(likenum).append(commentBtn);
+                body.append(pcontent);
+                var patt1 = new RegExp("PNG");
+                console.log(item.articlehead);
+                if (item.articlehead != "" && patt1.test(item.articlehead)) {
+                    body.append(pcontentImg);
+                }
+                body.append(btnlike).append(btncollec).append(likenum).append(commentBtn);
                 box.append(header).append(body).append(commentsinfo).append(writeComment);
                 /*文章（box）加入到div*/
                 $("#articleIdInfoDiv").append(box);
@@ -609,6 +617,37 @@
                 };
             }
         }
+        $("#publiskBtn").click(function () {
+            var content = $("#publishForm textarea").val();
+            var tagname = $("#publishForm .select2-selection__rendered").prop("title");
+            console.log(content+"content");
+            console.log(tagname + "tagname");
+            if (content == "" || tagname == "" || content.length < 5) {
+                alert("动态信息，内容和标签都不能为空。");
+                return false;
+            }
+            //进行下一步
+            return ture;
+        })
+
+        $("#submitTagName").click(function () {
+            var tagName = $("#tagNameId").val();
+            if (tagName != null || tagName.length > 2) {
+                $.ajax({
+                    url: "${APP_PATH}/tag",
+                    data: "tagname=" + tagName,
+                    type: "PUT",
+                    success: function (result) {
+                        if (result.code == 100) {
+                            $("#tagForm")[0].reset();
+                        }
+                        alert(result.extend.info);
+                    }
+                });
+            }else{
+                alert("标签名字过短");
+            }
+        });
     </script>
 </div><!-- ./wrapper -->
 </body>

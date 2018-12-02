@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Administrator
-  Date: 2018/11/14
-  Time: 19:17
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -116,30 +109,30 @@
                     <div class="box box-widget widget-user">
                         <!-- Add the bg color to the header using any of the bg-* classes -->
                         <div class="widget-user-header bg-blue" style="">
-                            <h3 class="widget-user-username">Elizabeth Pierce</h3>
+                            <h3 class="widget-user-username">${personal.username}</h3>
                             <h5 class="widget-user-desc">Web Designer</h5>
                         </div>
                         <div class="widget-user-image">
-                            <img class="img-circle" src="static/img/user3-128x128.jpg" alt="User Avatar">
+                            <img class="img-circle" src="/static/img/${personal.userimg}" alt="User Avatar">
                         </div>
                         <div class="box-footer">
                             <div class="row">
                                 <div class="col-sm-4 border-right">
                                     <div class="description-block">
-                                        <h5 class="description-header">3,200</h5>
-                                        <span class="description-text">SALES</span>
+                                        <h5 class="description-header">${personal.likes}</h5>
+                                        <span class="description-text">喜欢</span>
                                     </div><!-- /.description-block -->
                                 </div><!-- /.col -->
                                 <div class="col-sm-4 border-right">
                                     <div class="description-block">
-                                        <h5 class="description-header">13,000</h5>
-                                        <span class="description-text">FOLLOWERS</span>
+                                        <h5 class="description-header">${personal.fans}</h5>
+                                        <span class="description-text">粉丝</span>
                                     </div><!-- /.description-block -->
                                 </div><!-- /.col -->
                                 <div class="col-sm-4">
                                     <div class="description-block">
-                                        <h5 class="description-header">35</h5>
-                                        <span class="description-text">PRODUCTS</span>
+                                        <h5 class="description-header">${personal.follows}</h5>
+                                        <span class="description-text">关注</span>
                                     </div><!-- /.description-block -->
                                 </div><!-- /.col -->
                             </div><!-- /.row -->
@@ -161,36 +154,13 @@
                 <div class="col-md-3">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">相似关注者</h3>
+                            <h3 class="box-title">其他信息</h3>
                         </div>
                         <div class="box-footer no-padding">
-                            <ul class="users-list clearfix">
-                                <li>
-                                    <img src="/static/img/user1-128x128.jpg" class="user-image" alt="User Image">
-                                    <a class="users-list-name" href="#">Alexander Pierce</a>
-                                    <span class="users-list-date">Today</span>
-                                </li>
-                                <li>
-                                    <img src="/static/img/user8-128x128.jpg" class="user-image" alt="User Image">
-                                    <a class="users-list-name" href="#">Norman</a>
-                                    <span class="users-list-date">Yesterday</span>
-                                </li>
-                                <li>
-                                    <img src="/static/img/user7-128x128.jpg" class="user-image" alt="User Image">
-                                    <a class="users-list-name" href="#">Jane</a>
-                                    <span class="users-list-date">12 Jan</span>
-                                </li>
-                                <li>
-                                    <img src="/static/img/user6-128x128.jpg" class="user-image" alt="User Image">
-                                    <a class="users-list-name" href="#">John</a>
-                                    <span class="users-list-date">12 Jan</span>
-                                </li>
-                                <li>
-                                    <img src="/static/img/user2-160x160.jpg" class="user-image" alt="User Image">
-                                    <a class="users-list-name" href="#">Alexander</a>
-                                    <span class="users-list-date">13 Jan</span>
-                                </li>
-                            </ul><!-- /.users-list -->
+                            <ul class="nav nav-stacked">
+                                <li><a href="#">文章数 <span id="articleNum" class="pull-right badge bg-blue">0</span></a></li>
+                                <li><a href="#">标签数 <span id="tagNum" class="pull-right badge bg-blue">0</span></a></li>
+                            </ul>
                         </div><!-- /.box-body -->
                         <div class="box-footer text-center">
                             <a href="" class="uppercase">View All Users</a>
@@ -222,10 +192,26 @@
     * - end
     * */
     $(function () {
-        currentUserId = ${user.userid};
+        currentUserId = ${personal.userid};
         console.log("init User id : " + currentUserId);
         to_page(1);
+        baseInfo(currentUserId);
     });
+
+    function baseInfo(id) {
+        $.ajax({
+            url: "${APP_PATH}/person/info",
+            data: {userid: currentUserId},
+            type: "GET",
+            success: function (result) {
+                if (result.code == 100) {
+                    console.log(result);
+                    $("#articleNum").html(result.extend.articleNum);
+                    $("#tagNum").html(result.extend.tagNum);
+                }
+            }
+        });
+    }
 
     /*
     * 文章数据
@@ -233,11 +219,16 @@
     * */
     function to_page(pn) {
         $.ajax({
-            url: "${APP_PATH}/user/person",
+            url: "${APP_PATH}/person",
             data: {userId: currentUserId, pn: pn},
-            type: "GET",
+            type: "POST",
             success: function (result) {
                 if (result.code == 100) {
+
+                    if (result.extend.pageInfo.list.length < 1) {
+                        $("#articleIdInfoDiv").append("<h4 style=\"text-align: center;padding-top: 30px;\">暂时没有动态消息!</h4>");
+                        return false;
+                    }
                     build_article(result);
                     build_page_info(result);
                     build_page_nav(result)
@@ -251,6 +242,8 @@
         /*存储文章集*/
         $("#articleIdInfoDiv").empty();
         var articlesInfo = result.extend.pageInfo.list;
+        console.log(articlesInfo);
+
         $.each(articlesInfo, function (index, item) {
             /*box 每一篇文章*/
             var box = $("<div class=\"box box-widget commentBox\"></div>");

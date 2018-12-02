@@ -1,4 +1,14 @@
+## 2018-11-20
+### 推荐模块
+推荐指定关注人数的用户。粉丝数量大于1000
 
+```xml
+<!--SpringMVC接收 multipart/form-data 传输的数据-->
+<bean id="multipartResolver"
+      class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="defaultEncoding" value="UTF-8"/>
+</bean>
+```
 ## 2018-11-5
 ### 登录
 1. 校验姓名，用户名可以是2-5位中文或者6-16位英文和数字的组合
@@ -177,29 +187,7 @@ $(".commenttoggle").toggle(800);
 
     [MyBatis学习总结(五)——实现关联表查询 ](https://www.cnblogs.com/xdp-gacl/p/4264440.html ) [孤傲苍狼](https://www.cnblogs.com/xdp-gacl/)
 
-5. 设置 Typora 快捷键方法
-
-    ```html
-    // File -> Preference -> Advanced Setting (最下面) -> Open Advenced Setting -> conf.user.json
-    // 配置以下快捷键。（其中有很多快捷键在默认设置里已经包括，如 ctrl+shift+p 等）
-    // 1. 修改默认为 ctrl+d 的select word 为ctrl+alt+d
-    // 2. 设置 删除一行为 ctrl+d
-    // 3. 设置插入代码为 ctrl+shift+a
-    // 4. 将以下配置 粘贴到 conf.user.json 中，然后重新打开 typora 测试是否生效。
-      "keyBinding": {
-        // for example: 
-        // "Always on Top": "Ctrl+Shift+P"
-        "Always On Top": "Ctrl+Shift+P",
-        "Code Fences": "Ctrl+Shift+F",
-        "Ordered List": "Ctrl+Alt+o",
-        "Unordered List": "Ctrl+Alt+u",
-        "Select Word":"Ctrl+Alt+D",
-        "Delete Line/Sentence":"Ctrl+D",
-        "Code Fences":"Ctrl+Shift+A"
-      },
-    ```
-
-6. jQuery 函数的使用
+5. jQuery 函数的使用
     ```javascript
     //parseInt 方法都有两个参数, 第一个参数就是要转换的对象, 第二个参数是进制基数, 可以是 2, 8, 10, 16, 默认以 10 进制处理
     parseInt(str);

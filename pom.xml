@@ -10,10 +10,7 @@
   <packaging>war</packaging>
 
   <name>jian Maven Webapp</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
-
-
+  <url>http://www.ujJian.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -197,6 +194,20 @@
       <version>2.6</version>
     </dependency>
     <!-- 整合redis -->
+    <!-- spring整合redis需要的jar包 -->
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-redis</artifactId>
+      <version>${spring-redis.version}</version>
+    </dependency>
+
+    <!-- 访问redis数据库的jedis包,会自动添加commons-pool2的依赖  -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>${jedis.version}</version>
+    </dependency>
+
     <!-- spring整合redis需要的jar包 -->
     <dependency>
       <groupId>org.springframework.data</groupId>
